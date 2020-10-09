@@ -1,0 +1,5 @@
+# pg_kalman extension
+comment = 'A Kalman filter extension for PostgreSQL.'
+default_version = '0.1'
+module_pathname = '$libdir/pg_kalman'
+relocatable = true
