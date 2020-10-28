@@ -1,16 +1,31 @@
 #include "pg_kalman.h"
 
-int staticSystemInit(struct StaticSystem **obj) {
+int staticSystemInit(struct StaticSystem **self, float variance) {
 
-	if((*obj = palloc(sizeof(struct StaticSystem))) == NULL )
+	if((*self = palloc(sizeof(struct StaticSystem))) == NULL )
 		return -1;
 
-	(*obj)->error      = 0;
-	(*obj)->estimate   = 0;
-	(*obj)->gain       = 0;
-	(*obj)->previous   = 0;
+	(*self)->error      = 1;
+	(*self)->previous   = 0;
+	(*self)->variance   = variance;
 
 	return 0;
+}
+
+float staticSystemEstimate(struct StaticSystem **self, float observation) {
+
+	float estimation   = 0;
+
+	float gain = (*self)->error / ( (*self)->error + (*self)->variance );
+
+	(*self)->error = (1 - gain) * (*self)->error;
+
+	estimation = (*self)->previous + gain * (observation - (*self)->previous);
+
+	/* This estimation becomes the previous for the next observation */
+	(*self)->previous = estimation;
+
+	return estimation;
 }
 
 
@@ -22,14 +37,13 @@ Datum filterStaticSystem(PG_FUNCTION_ARGS) {
 
 	float observation   = PG_GETARG_FLOAT8(0);
 	float variance      = PG_GETARG_FLOAT8(1);
-	float estimation    = 0;
 
 	/* Initialize a staticSystem object in a shared, function memory context */
 	if (fcinfo->flinfo->fn_extra == NULL) {
 
 		old_context = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
 
-		if (staticSystemInit(&stash) != 0) {
+		if (staticSystemInit(&stash, variance) != 0) {
 			elog(ERROR,"Could not allocate object");				
 		}
 
@@ -40,12 +54,5 @@ Datum filterStaticSystem(PG_FUNCTION_ARGS) {
 	/* Use our stashed object from the function memory context */
 	stash = fcinfo->flinfo->fn_extra;
 
-	/* Make our estimation */ 
-	stash->gain = stash->previous / ( stash->previous + variance );
-	estimation = stash->previous + (stash->gain * (observation - stash->previous));
-
-	/* This observation becomes the previous for the next */
-	stash->previous = observation;
-
-	PG_RETURN_FLOAT8(estimation);
+	PG_RETURN_FLOAT8(staticSystemEstimate(&stash, observation));
 }

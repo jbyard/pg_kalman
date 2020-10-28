@@ -6,14 +6,14 @@ A Kalman filter extension for PostgreSQL.
 WITH noisy_data AS (
 	SELECT
 		to_char(day,'YYYY_MM_DD')   AS time,
-		normal_rand(1,3,1)          AS raw
+		normal_rand(1,2.13,1)       AS raw
 	FROM generate_series(
 		NOW() - '30 days'::interval,
 		NOW(),
 		'1 day'::interval) day
 )
 SELECT
-	time, raw, filter(raw,2)
+	time, 2.13 AS truth, raw, filter(raw, 1)
 FROM noisy_data
 ```
 ![static system example](example.png)

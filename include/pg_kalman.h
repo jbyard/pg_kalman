@@ -16,11 +16,11 @@ PG_MODULE_MAGIC;
 
 struct StaticSystem {
 	float   error;
-	float   estimate;
-	float   gain;
 	float   previous;
+	float   variance;
 };
 
-int staticSystemInit(struct StaticSystem **obj);
+int staticSystemInit(struct StaticSystem **obj, float variance);
+float staticSystemEstimate(struct StaticSystem **obj, float observation);
 
 PG_FUNCTION_INFO_V1(filterStaticSystem);
