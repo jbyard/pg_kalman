@@ -31,8 +31,14 @@ Build and install the extension.
 make; sudo make install
 ```
 
-Then add `pg_kalman` to your postgres server's `shared_preload_libraries`
+Add `pg_kalman` to your postgres server's `shared_preload_libraries`
 configuration and restart the service.
+
+Then create the extension in your postgres client.
+
+```sql
+CREATE EXTENSION pg_kalman
+```
 
 ## Tests
 
