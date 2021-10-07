@@ -1,12 +1,20 @@
 BEGIN;
+SELECT plan(3);
 
-SELECT plan(1);
 
-SELECT isnt((
-	WITH observations AS (
-		SELECT generate_series(1,10) AS point
-	) SELECT MAX(filter(point)) FROM observations
-),NULL,'Does filter() return something, anything');
+SELECT is((
+	SELECT filter(1) < 1
+),TRUE,'Variance/gain is applied to a single observation.');
+
+SELECT is((
+	SELECT filter(-1) < 0
+),TRUE,'Observations and estimations can be negative.');
+
+SELECT is((
+	SELECT MAX(filter(x)) > avg(x)
+	FROM generate_series(1,10) AS x
+),FALSE,'Estimation is not above the mean.');
+
 
 SELECT * FROM finish();
 ROLLBACK;
