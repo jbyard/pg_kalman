@@ -1,8 +1,10 @@
 # pg_kalman
 
-A Kalman filter extension for PostgreSQL.
+A simple [Kalman filter](https://en.wikipedia.org/wiki/Kalman_filter) extension
+for PostgreSQL.  Mostly just for fun.
 
 ```sql
+/* Filter some noisy data generated from a true value. */
 WITH noisy_data AS (
 	SELECT
 		to_char(day,'YYYY_MM_DD')   AS time,
@@ -13,10 +15,30 @@ WITH noisy_data AS (
 		'1 day'::interval) day
 )
 SELECT
-	time, 2.13 AS truth, raw, filter(raw, 1)
+	time             AS time,
+	2.13             AS truth,
+	raw              AS raw,
+	filter(raw, 1)   AS filtered
 FROM noisy_data
 ```
 ![static system example](example.png)
+
+## Installing
+
+Build and install the extension.
+
+```bash
+make; sudo make install
+```
+
+Add `pg_kalman` to your postgres server's `shared_preload_libraries`
+configuration and restart the service.
+
+Then create the extension in your postgres client.
+
+```sql
+CREATE EXTENSION pg_kalman
+```
 
 ## Tests
 
