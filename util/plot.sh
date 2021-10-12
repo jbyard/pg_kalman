@@ -15,7 +15,7 @@ COPY (
 		time,
 		truth,
 		raw,
-		filter(raw,1) AS estimation
+		static_filter(raw,1) AS estimation
 	FROM noisy_data
 ) TO '/tmp/example.csv' WITH (FORMAT CSV, HEADER)
 "

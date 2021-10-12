@@ -19,7 +19,7 @@ SELECT
 	time,
 	truth,
 	raw,
-	filter(raw,1) AS estimation
+	static_filter(raw,1) AS estimation
 FROM noisy_data
 ```
 ![static system example](img/example.png)
