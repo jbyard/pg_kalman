@@ -12,17 +12,17 @@ WITH noisy_data AS (
 	SELECT
 		time,
 		2                    AS truth,
-		normal_rand(1,2,1)   AS raw
+		normal_rand(1,2,1)   AS measurement
 	FROM generate_series(1,60) AS time
 )
 SELECT
 	time,
 	truth,
-	raw,
-	static_filter(raw,1) AS estimation
+	measurement,
+	static_filter(measurement,1) AS estimation
 FROM noisy_data
 ```
-![static system example](img/example.png)
+![static system estimation](img/example.png)
 
 ## Installing
 

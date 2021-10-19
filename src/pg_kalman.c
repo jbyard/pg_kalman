@@ -35,8 +35,8 @@ Datum filterDynamicSystem(PG_FUNCTION_ARGS) {
 	struct DynamicSystem *stash;
 	MemoryContext old_context;
 
-	float position   = PG_GETARG_FLOAT8(0);
-	float velocity   = PG_GETARG_FLOAT8(1);
+	float measurement   = PG_GETARG_FLOAT8(0);
+	float uncertainty   = PG_GETARG_FLOAT8(1);
 
 	/* Initialize a DynamicSystem state object in the function memory context. */
 	if (fcinfo->flinfo->fn_extra == NULL) {
@@ -54,5 +54,5 @@ Datum filterDynamicSystem(PG_FUNCTION_ARGS) {
 	/* Use the state object from the function memory context for each row. */
 	stash = fcinfo->flinfo->fn_extra;
 
-	PG_RETURN_FLOAT8(dynamicSystemEstimate(&stash));
+	PG_RETURN_FLOAT8(dynamicSystemEstimate(&stash, measurement, uncertainty));
 }
