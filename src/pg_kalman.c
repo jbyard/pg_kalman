@@ -1,6 +1,6 @@
 #include "pg_kalman.h"
 
-/* Filter a single dimension */
+/* Filter a static system. */
 Datum filterStaticSystem(PG_FUNCTION_ARGS) {
 
 	struct StaticSystem *stash;
@@ -9,7 +9,7 @@ Datum filterStaticSystem(PG_FUNCTION_ARGS) {
 	float observation   = PG_GETARG_FLOAT8(0);
 	float variance      = PG_GETARG_FLOAT8(1);
 
-	/* Initialize a staticSystem object in a shared, function memory context */
+	/* Initialize a StaticSystem state object in the function memory context. */
 	if (fcinfo->flinfo->fn_extra == NULL) {
 
 		old_context = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
@@ -22,8 +22,37 @@ Datum filterStaticSystem(PG_FUNCTION_ARGS) {
 		fcinfo->flinfo->fn_extra = stash;
 	}
 
-	/* Use our stashed object from the function memory context */
+	/* Use the state object from the function memory context for each row. */
 	stash = fcinfo->flinfo->fn_extra;
 
 	PG_RETURN_FLOAT8(staticSystemEstimate(&stash, observation));
+}
+
+
+/* Filter a one-dimensional, dynamic system. */
+Datum filterDynamicSystem(PG_FUNCTION_ARGS) {
+
+	struct DynamicSystem *stash;
+	MemoryContext old_context;
+
+	float measurement   = PG_GETARG_FLOAT8(0);
+	float uncertainty   = PG_GETARG_FLOAT8(1);
+
+	/* Initialize a DynamicSystem state object in the function memory context. */
+	if (fcinfo->flinfo->fn_extra == NULL) {
+
+		old_context = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
+
+		if (dynamicSystemInit(&stash) != 0) {
+			elog(ERROR,"Could not allocate object");
+		}
+
+		MemoryContextSwitchTo(old_context);
+		fcinfo->flinfo->fn_extra = stash;
+	}
+
+	/* Use the state object from the function memory context for each row. */
+	stash = fcinfo->flinfo->fn_extra;
+
+	PG_RETURN_FLOAT8(dynamicSystemEstimate(&stash, measurement, uncertainty));
 }
