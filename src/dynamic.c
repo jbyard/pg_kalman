@@ -5,8 +5,13 @@ int dynamicSystemInit(struct DynamicSystem **self) {
 	if((*self = palloc(sizeof(struct DynamicSystem))) == NULL )
 		return -1;
 
-	(*self)->error      = 1;
-	(*self)->previous   = 0;
+	(*self)->alpha          = 0.5;
+	(*self)->beta           = 0.4;
+	(*self)->gamma          = 0.1;
+
+	(*self)->predicted      = 0;
+	(*self)->velocity       = 0;
+	(*self)->acceleration   = 0;
 
 	return 0;
 }
@@ -14,15 +19,15 @@ int dynamicSystemInit(struct DynamicSystem **self) {
 
 float dynamicSystemEstimate( struct DynamicSystem **self, float measurement, float uncertainty ) {
 
-	float estimation   = 0;
+	/* State update */
+	float estimation = (*self)->predicted + (*self)->alpha * (measurement - (*self)->predicted);
+	float velocity = (*self)->velocity + (*self)->beta * (measurement - (*self)->predicted);
+	float acceleration = (*self)->acceleration + (*self)->gamma * ((measurement - (*self)->predicted) / 0.5 );
 
-	float gain = (*self)->error / ( (*self)->error + uncertainty );
-
-	(*self)->error = (1 - gain) * (*self)->error;
-
-	estimation = (*self)->previous + gain * (measurement - (*self)->previous);
-
-	(*self)->previous = estimation;
+	/* State extrapolation */
+	(*self)->predicted = estimation + velocity + (acceleration * 0.5);
+	(*self)->velocity = velocity + acceleration;
+	(*self)->acceleration = acceleration;
 
 	return estimation;
 }

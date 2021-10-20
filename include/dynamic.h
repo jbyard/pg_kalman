@@ -1,7 +1,8 @@
 /*
  * dynamic.h
  *
- * A simple, one-dimensional dynamic system.
+ * Filter a simple, one-dimensional dynamic system.  More of a Alpha/Beta/Gamma
+ * filter than a Kalman filter.
  */
 
 
@@ -11,9 +12,12 @@
 #define PG_KALMAN_DYNAMIC_H
 
 struct DynamicSystem {
-	float   error;
-	float   previous;
-	float   variance;
+	float   alpha;
+	float   beta;
+	float   gamma;
+	float   predicted;
+	float   velocity;
+	float   acceleration;
 };
 
 int dynamicSystemInit( struct DynamicSystem **self );
