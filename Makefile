@@ -22,7 +22,7 @@ TESTS     := $(sort $(wildcard $(T_DIR)/*.sql) )
 CFLAGS += -fPIC -Wall -O3 -shared -std=gnu99
 CFLAGS += -Iinclude -I$(PG_INCLUDE) -I$(PG_SERVER_INCLUDE) -I/usr/local/include
 
-.PHONY: install clean all ca test cat
+.PHONY: all build clean install test
 
 all: $(EXTENSION).so
 
@@ -33,6 +33,14 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+build:
+	docker-compose --profile build up && docker-compose down
+
+clean:
+	docker image rm -f $(EXTENSION)_build $(EXTENSION)_test
+	$(RM) $(OBJ) $(EXTENSION).so
+	$(RM) -r $(OBJ_DIR)
+
 install:
 	chmod 755 $(EXTENSION).so
 	mkdir -p $(PG_EXTENSION)
@@ -41,14 +49,5 @@ install:
 	install -c -m 644 $(SQL) $(PG_EXTENSION)/$(EXTENSION)--$(VERSION).sql
 	install -c -m 755 $(EXTENSION).so $(PG_LIB)
 
-clean:
-	$(RM) $(OBJ) $(EXTENSION).so
-	$(RM) -r $(OBJ_DIR)
-
-test:
-	URI=`PATH='$(PATH)'; pg_tmp -o '-c dynamic_library_path=$(PWD) \
-	-c shared_preload_libraries=$(EXTENSION)'` ;\
-		pg_prove \
-			--dbname `echo $$URI | cut -d '/' -f 4 | cut -d '?' -f 1` \
-			--host `echo $$URI | cut -d '=' -f 2 | sed 's/%2F/\//g'` \
-			$(TESTS)
+test: build
+	docker-compose --profile test up && docker-compose down

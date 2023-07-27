@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  build:
+    build:
+      context: ./
+      dockerfile: ./docker/build/Dockerfile
+      network: host
+    container_name: build_extension
+    profiles:
+      - build
+    volumes:
+      - ./:/pg_kalman
+    working_dir: /pg_kalman
+    command: bash -c "make"
+    network_mode: "host"
+  test:
+    build:
+      context: ./
+      dockerfile: ./docker/test/Dockerfile
+      network: host
+    container_name: test
+    profiles:
+      - test
+    volumes:
+      - ./:/pg_kalman
+    working_dir: /pg_kalman
+    environment:
+      - 'POSTGRES_PASSWORD=postgres'
+      - 'POSTGRES_DB=postgres'
+    network_mode: "host"
