@@ -75,10 +75,12 @@ CREATE EXTENSION pg_kalman
 
 ## Tests
 
-Test coverage depends on these great projects: 
+This project's test coverage uses [pg_tap](https://pgtap.org/).  You can run
+tests against builds from your local reposistory with docker:
 
-* [pg_tap](https://pgtap.org/)
-* [pg_tmp](http://eradman.com/ephemeralpg/)
+```make
+make test
+```
 
 ## Authors
 
