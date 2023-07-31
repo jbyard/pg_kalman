@@ -5,7 +5,7 @@ services:
       context: ./
       dockerfile: ./docker/build/Dockerfile
       network: host
-    container_name: build_extension
+    container_name: build
     profiles:
       - build
     volumes:
@@ -13,6 +13,23 @@ services:
     working_dir: /pg_kalman
     command: bash -c "make"
     network_mode: "host"
+  demo:
+    build:
+      context: ./
+      dockerfile: ./docker/demo/Dockerfile
+    container_name: pg_kalman
+    restart: always
+    profiles:
+      - demo
+    volumes:
+      - ./:/pg_kalman
+      - ./sql/demo.sql:/docker-entrypoint-initdb.d/1.sql
+      - data:/var/lib/postgresql/data
+    working_dir: /pg_kalman
+    ports:
+      - "127.0.0.1:5432:5432"
+    env_file:
+      - ./.env
   test:
     build:
       context: ./
@@ -24,7 +41,8 @@ services:
     volumes:
       - ./:/pg_kalman
     working_dir: /pg_kalman
-    environment:
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_DB=postgres'
+    env_file:
+      - ./.env
     network_mode: "host"
+volumes:
+  data:

@@ -37,9 +37,14 @@ build:
 	docker-compose --profile build up && docker-compose down
 
 clean:
-	docker image rm -f $(EXTENSION)_build $(EXTENSION)_test
+	docker-compose down
+	for f in build demo test; do docker image rm -f $(EXTENSION)_$$f; done
+	docker volume rm $(EXTENSION)_data
 	$(RM) $(OBJ) $(EXTENSION).so
 	$(RM) -r $(OBJ_DIR)
+
+demo: build test
+	docker-compose --profile demo up && docker-compose down
 
 install:
 	chmod 755 $(EXTENSION).so

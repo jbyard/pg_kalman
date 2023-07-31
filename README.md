@@ -3,6 +3,22 @@
 A simple [Kalman filter](https://en.wikipedia.org/wiki/Kalman_filter) extension
 for PostgreSQL.  Mostly just for fun.
 
+## Demo
+
+You can try out pg_kalman in a local database instance with docker.
+
+First clone this repository locally and launch the demo:
+
+```bash
+make demo
+```
+
+Then connect to the database in another terminal:
+
+```bash
+psql 'postgresql://postgres:password@127.0.0.1/pg_kalman'
+```
+
 ## Static Systems
 
 ```sql
@@ -76,10 +92,18 @@ CREATE EXTENSION pg_kalman
 ## Tests
 
 This project's test coverage uses [pg_tap](https://pgtap.org/).  You can run
-tests against builds from your local reposistory with docker:
+tests against builds from your local repository with docker:
 
-```make
+```bash
 make test
+```
+
+## Cleaning Up
+
+The `clean` make target will remove the demo's persistent database storage:
+
+```bash
+make clean
 ```
 
 ## Authors
